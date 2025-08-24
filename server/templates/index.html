@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Home Kiosk</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/main.css')}}"/>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+        
+	</head>
+    <body>
+		<!-- Row 1 -->
+		<div class="row">
+			<!-- Clock -->
+			<fieldset class="box" id="clock">
+				<legend id="date"></legend>
+				<h1 id="time"></h1>
+			</fieldset>
+
+			<div class="sub-column" id="today">
+				<div class="row" id="today-events">
+					<h2>|</h2>
+					<div class="carousel">
+						<div class="carousel-group">
+							{% for i in range(carousel_size) %}
+							{% for event in event_lists[0] %}
+							<div class="carousel-slide">
+								<h2>{{event}}</h2>
+							</div>
+							<div class="carousel-slide">
+								<h2>|</h2>
+							</div>
+							{% endfor %}
+							{% endfor %}
+						</div>
+						<div aria-hidden class="carousel-group">
+							{% for i in range(carousel_size) %}
+							{% for event in event_lists[0] %}
+							<div class="carousel-slide">
+								<h2>{{event}}</h2>
+							</div>
+							<div class="carousel-slide">
+								<h2>|</h2>
+							</div>
+							{% endfor %}
+							{% endfor %}
+						</div>
+					</div>
+					<h2>|</h2>
+				</div>
+
+				<div class="row">
+					{% set hour = weather_hourly[0] %}
+					<fieldset class="box box-hour" id="weather-now">
+						<legend class="hour-legend">Now</legend>
+						<div class="sub-column">
+							<h2 class="hour-text hour-temp">{{hour[2]}}&degC</h2>
+							<h3 class="hour-text hour-weather">{{hour[4]}}</h3>
+						</div>
+						<p class="hour-text hour-wind">{{hour[5]}} MPH </p>
+						<img class="bg-image" src="{{url_for('static', filename='icons/' + hour[3] + '.svg')}}"/>
+					</fieldset>
+					{% for hour in weather_hourly[1:5] %}
+					{% if hour[0] == 'weather' %}
+					<fieldset class="box box-hour">
+						<legend class="hour-legend">{{hour[1][11:]}}</legend>
+						<div class="sub-column">
+							<h2 class="hour-text hour-temp">{{hour[2]}}&degC</h2>
+							<h3 class="hour-text hour-weather">{{hour[4]}}</h3>
+						</div>
+						<p class="hour-text hour-wind">{{hour[5]}} MPH </p>
+						<img class="bg-image" src="{{url_for('static', filename='icons/' + hour[3] + '.svg')}}"/>
+					</fieldset>
+					{% elif hour[0] == 'sun' %}
+					<fieldset class="box box-hour box-hour-sun">
+						<legend class="hour-legend">{{hour[1][11:]}}</legend>
+						<h2 class="hour-text hour-temp">{{hour[4]}}</h2>
+						<img class = "bg-image" src="{{url_for('static', filename='icons/' + hour[4] + '.svg')}}"/>
+					</fieldset>
+					{% endif %}
+					{% endfor %}
+				</div>
+
+			</div>
+		</div>
+
+		<!-- Row 2 -->
+		<div class="row">
+			{% for i in range(1,7) %}
+			{% set day = weather_daily[i] %}
+			<fieldset class="box box-day">
+				<legend>{{day[3]}}</legend>
+				<div>
+					<h2 class="day-text">{{day[6]|round (2)}}&degC</h2>
+					<h3 class="day-text">{{day[8]}}</h3>
+					<img class="bg-image" id="day-image" src="{{url_for('static', filename='icons/' + day[7] + '.svg')}}"/>	
+				</div>
+
+				<div>
+					<div class="carousel day-carousel">
+						<div class="carousel-group day-carousel-group">
+							{% for event in event_lists[i] %}
+							<div class="carousel-slide ">
+								<p>{{event}}</p>
+							</div>
+							{% endfor %}
+						</div>
+						<div aria-hidden class="carousel-group day-carousel-group">
+							{% for event in event_lists[i] %}
+							<div class="carousel-slide ">
+								<p>{{event}}</p>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+					<p class="day-text" id="day-date">{{day[2]}}</p>
+				</div>
+			</fieldset>
+			{% endfor %}
+		</div>
+
+		<!-- Row 3 -->
+		<div class="row" id="row-3">
+			<fieldset class="box sub-column" id="warton-spotify">
+				<legend>BAE Warton</legend>
+				<div class="bae-info">
+					<h3>BAE Shares</h3>
+					<p>{{stock[0][0]}} (
+						{% if stock[0][2] | int > 0 %} 
+							<span class="stock-increase" >{{stock[0][2]}}, {{stock[0][3]}}% </span> 
+						{% else %} 
+							<span class="stock-decrease" >{{stock[0][2]}}, {{stock[0][3]}}% </span> 
+						{% endif %}
+					)
+					</p>
+				</div>
+	
+				<div class="bae-info">
+					<h3 class='flight-text' id='flight-title'>{{warton_flight[0][9]}} {{warton_flight[0][8]}}</h3>
+					<div class="row flight-subinfo">
+						<p class="flight-text flight-subtext">FROM {{warton_flight[0][5]}} TO {{warton_flight[0][6]}}</p>
+					</div>
+					<div class="row flight-subinfo">
+						<p class="flight-text flight-subtext ">{{warton_flight[0][12]}} <br>({{warton_flight[0][10]}}) ({{warton_flight[0][11]}})</p>
+					</div>
+
+					<div class="row flight-subinfo">
+						<p class="flight-text flight-subtext">CS - {{warton_flight[0][7]}}</p>
+						<p class="flight-text flight-subtext">ICAO - {{warton_flight[0][2]}} ({{warton_flight[0][1]}})</p>
+					</div>
+					<p class="flight-text flight-subtext" id="flight-time">{{warton_flight[0][4]}}</p>
+				</div>
+			</fieldset>
+			
+			<fieldset class="box" id="liverpool">
+				<legend>Liverpool FC</legend>
+				<div class="row">
+					<div class="sub-column" id="team-matches">
+						<table id="match-table">
+						<tr>
+							<th></th>
+							<th></th>
+							<th>Home</th>
+							<th>Away</th>
+						</tr>
+						{% for match in liverpool_matches[0:3] %}
+						<tr>
+							<td>{{match[0]}}</td>
+							<td>{{match[2]}} <br>{{match[3]}}</td>
+							<td>
+								{{match[5]}}
+								{% if match[6] is not none %}
+								<br>({{match[6]}})
+								{% endif %}
+							</td>
+							<td>
+								{{match[8]}}
+								{% if match[9] is not none %}
+								<br>({{match[9]}})
+								{% endif %}
+							</td>
+						</tr>
+						{% endfor %}
+					</table>
+					</div>
+					<div class="sub-column" id="team-status">
+						<div class="sub-column team-status-item" id="premier-league">
+							<table>
+								<tr>
+									<th id="table-name">Premier League</th>
+									<th>POS</th>
+									<th>PTS</th>
+									<th>GDA</th>
+									<th>PLD</th>
+								</tr>
+								{% for status in liverpool_status %}
+								<tr>
+									<td id="team-name">{{status[4]}}</td>
+									<td class="table-subtext">{{status[5]}}</td>
+									<td class="table-subtext">{{status[10]}}</td>
+									<td class="table-subtext">{{status[13]}}</td>
+									<td class="table-subtext">{{status[6]}}</td>
+								</tr>
+								{% endfor %}
+							</table>
+						</div>
+						<div class="sub-column team-status-item" id="champions-league">
+							<h3>Champions League</h3>
+							<p>{{cl_status}}</p>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+
+		<!-- Row 4 -->
+		<div class="row" id="news">
+			<h2>|</h2>
+			<div class="carousel">
+				<div class="carousel-group news-carousel-group">
+					{% for entry in news %}
+					<div class="carousel-slide">
+						<h2>{{entry[2]}}</h2>
+					</div>
+					<div class="carousel-slide">
+						<h2>|</h2>
+					</div>
+					{% endfor %}
+				</div>
+				<div aria-hidden class="carousel-group news-carousel-group">
+					{% for entry in news %}
+					<div class="carousel-slide">
+						<h2>{{entry[2]}}</h2>
+					</div>
+					<div class="carousel-slide">
+						<h2>|</h2>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			<h2>|</h2>
+		</div>
+	
+	<!-- Scripts -->
+	<script src="{{url_for('static', filename='js/spotify_listener.js')}}"></script>
+	<script src="{{url_for('static', filename='js/clock.js')}}"></script>
+    </body>
+</html>
+
+
+
