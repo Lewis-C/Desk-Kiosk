@@ -1,4 +1,4 @@
-# Desk-Kiosk
+# Desk Kiosk
 This repository contains the Python scripts and HTML, CSS and Javascript used to acces various APIs and display to the user
 
 Data used such as:
