@@ -9,8 +9,6 @@ import os
 import datetime
 import math
 
-# Local Imports
-import spotify_socket
 
 # Configure environment
 load_dotenv('/usr/files/server/.credentials/.env') 
@@ -47,10 +45,10 @@ def get_event_lists(weather_daily, events):
 def get_champions_league_status(liverpool_matches):
     # Function to iterate through each match and find if a champions league game is scheduled. If not, we're knocked out (or draw hasnt happened, but couldnt be arsed developing for that)
     for match in liverpool_matches[3:]:
-        if match[0] == "UEFA Champions League":
+        print(match)
+        if match[0] == "CL":
             return match[1]
-        else:
-            return "Knocked Out"
+    return "Knocked Out"
 
 # Route to open and handle the main kiosk page
 @app.route('/')
@@ -90,11 +88,6 @@ def index():
                            cl_status = cl_status,
                            news=news,
                            stock=stock)
-
-# Socket to handle spotify player
-@socket.on('listener_spotify_message')
-def handle_msg(listener_spotify_message):
-    socket.emit("socket_spotify_message",spotify_socket.get_currently_playing())
 
 if __name__ == '__main__':
     socket.run(app,host='0.0.0.0',debug=True,allow_unsafe_werkzeug=True)

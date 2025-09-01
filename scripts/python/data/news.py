@@ -46,7 +46,7 @@ def _get_entries(location,rss_url,record_count):
     # If the feed returns correctly, remove the existing data
     if bool(feed.entries):
         _c.execute(f"""
-        DELETE FROM News WHERE LOCATION = {location}
+        DELETE FROM News WHERE LOCATION = '{location}'
         """)
     
     for entry in feed.entries[0:10]:

@@ -121,7 +121,7 @@
 
 		<!-- Row 3 -->
 		<div class="row" id="row-3">
-			<fieldset class="box sub-column" id="warton-spotify">
+			<fieldset class="box sub-column" id="warton">
 				<legend>BAE Warton</legend>
 				<div class="bae-info">
 					<h3>BAE Shares</h3>
@@ -163,7 +163,7 @@
 							<th>Home</th>
 							<th>Away</th>
 						</tr>
-						{% for match in liverpool_matches[0:3] %}
+						{% for match in liverpool_matches[1:4] %}
 						<tr>
 							<td>{{match[0]}}</td>
 							<td>{{match[2]}} <br>{{match[3]}}</td>
@@ -242,7 +242,6 @@
 		</div>
 	
 	<!-- Scripts -->
-	<script src="{{url_for('static', filename='js/spotify_listener.js')}}"></script>
 	<script src="{{url_for('static', filename='js/clock.js')}}"></script>
     </body>
 </html>
